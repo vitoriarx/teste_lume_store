@@ -10,6 +10,10 @@ export default defineConfig({
 
     headless: true,
 
+    launchOptions: {
+      slowMo: 500,
+    },
+
     trace: 'on-first-retry',
 
     screenshot: 'only-on-failure',
