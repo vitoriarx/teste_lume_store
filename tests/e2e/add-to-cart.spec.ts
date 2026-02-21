@@ -1,7 +1,8 @@
-import { test } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import { HomePage } from '../pages/home.page';
 import { SearchPage } from '../pages/search.page';
 import { ProductPage } from '../pages/product.page';
+import { CartPage} from '../pages/cart.page';
 
 test.describe('Add To Cart Flow', () => {
 
@@ -10,6 +11,7 @@ test.describe('Add To Cart Flow', () => {
         const home = new HomePage(page);
         const search = new SearchPage(page);
         const product = new ProductPage(page);
+        const cart = new CartPage(page);
 
         await home.navigate('/');
 
@@ -26,6 +28,11 @@ test.describe('Add To Cart Flow', () => {
         await product.selectFirstAvailableColor();
         await product.addToCart();
         await product.validateProductAddedToCart();
+
+        await cart.openMiniCart();
+        await cart.proceedToCheckout();
+
+        await expect(page).toHaveURL(/checkout/i);
 
     });
 });
