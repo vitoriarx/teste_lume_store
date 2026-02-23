@@ -14,6 +14,7 @@ export class CheckoutPage extends BasePage {
   private readonly phoneInput: Locator;
   private readonly shippingMethodRadio: Locator;
   private readonly nextButton: Locator;
+  private readonly shippingMethods: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -32,6 +33,8 @@ export class CheckoutPage extends BasePage {
 
     this.shippingMethodRadio = page.locator('input[type="radio"]');
     this.nextButton = page.locator('button.continue');
+
+    this.shippingMethods = page.getByRole('radio');
   }
 
   async validateCheckoutPageLoaded() {
@@ -72,4 +75,46 @@ export class CheckoutPage extends BasePage {
     await expect(this.nextButton).toBeEnabled({ timeout: 20000 });
     await this.nextButton.click();
   }
+
+  async validatePlaceOrderDisabled() {
+    const placeOrderButton = this.page.locator('button.action.primary.checkout');
+
+    await expect(placeOrderButton).toBeVisible();
+    await expect(placeOrderButton).toBeDisabled();
+  }
+
+  async changeZipCode(newZip: string) {
+    const estimateRequest = this.page.waitForResponse(response =>
+      response.url().includes('/estimate-shipping-methods') &&
+      response.request().method() === 'POST'
+    );
+
+    await this.zipCodeInput.fill('');
+    await this.zipCodeInput.fill(newZip);
+    await this.zipCodeInput.blur();
+
+    await estimateRequest;
+
+    // 🔥 Espera os radios reaparecerem após re-render
+    await expect(this.page.getByRole('radio').first()).toBeVisible();
+  }
+
+  async validateShippingRecalculated() {
+    await expect(this.shippingMethodRadio.first()).toBeVisible();
+    await expect(this.nextButton).toBeEnabled();
+  }
+
+    async validateShippingStillSelected() {
+    const firstMethod = this.page.getByRole('radio').first();
+
+    await expect(firstMethod).toBeVisible();
+    await expect(firstMethod).toBeChecked();
+    await expect(this.nextButton).toBeEnabled();
+  }
+
 }
+
+
+  
+
+  
