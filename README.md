@@ -3,7 +3,7 @@
 
 Projeto de automação E2E para o e-commerce Magento (Luma Store), desenvolvido com **Playwright + TypeScript** e arquitetura baseada em **Page Object Model (POM)**.
 
-Este projeto demonstra não apenas execução técnica, mas aplicação de princípios reais de engenharia de qualidade:
+Este projeto demonstra não apenas execução técnica, mas aplicação de princípios reais de engenharia de qualidade.
 
 - Estratégia baseada em risco  
 - Testes determinísticos  
@@ -28,6 +28,54 @@ Os fluxos automatizados foram priorizados considerando impacto financeiro e crit
 A automação cobre os pontos mais sensíveis à experiência do usuário e geração de receita.
 
 ---
+
+##  Escolha da Ferramenta de Teste
+
+###  Playwright + TypeScript
+
+### Motivos da escolha
+
+- Suporte nativo a múltiplos browsers  
+- Esperas automáticas (reduz flakiness)  
+- API moderna e intuitiva  
+- Interceptação de requisições simples (`page.route`)  
+- Paralelização nativa  
+- Relatório HTML integrado  
+- Excelente integração com CI  
+
+> Playwright permite maior controle sobre rede, sincronização e comportamento da aplicação — essencial para testes robustos.
+
+---
+
+##  Por que NÃO Cypress?
+
+###  Vantagens
+- Fácil setup  
+- Boa comunidade  
+- Excelente Developer Experience  
+
+###  Desvantagens
+- Arquitetura baseada em browser único  
+- Limitações históricas em múltiplas abas  
+- Controle de rede menos flexível comparado ao Playwright  
+- Execução paralela exige configuração adicional  
+
+---
+
+##  Por que NÃO Selenium?
+
+###  Vantagens
+- Extremamente consolidado  
+- Grande compatibilidade  
+
+###  Desvantagens
+- Setup mais complexo  
+- Código mais verboso  
+- Maior propensão a flakiness  
+- Menos moderno em termos de DX  
+
+---
+
 
 #  Escopo Automatizado
 
