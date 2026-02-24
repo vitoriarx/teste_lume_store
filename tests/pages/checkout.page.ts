@@ -12,8 +12,8 @@ export class CheckoutPage extends BasePage {
   private readonly stateSelect: Locator;
   private readonly zipCodeInput: Locator;
   private readonly phoneInput: Locator;
-  private readonly shippingMethodRadio: Locator;
   private readonly nextButton: Locator;
+  private readonly shippingMethods: Locator;
 
   constructor(page: Page) {
     super(page);
@@ -30,8 +30,10 @@ export class CheckoutPage extends BasePage {
     this.zipCodeInput = shippingForm.locator('input[name="postcode"]');
     this.phoneInput = shippingForm.locator('input[name="telephone"]');
 
-    this.shippingMethodRadio = page.locator('input[type="radio"]');
     this.nextButton = page.locator('button.continue');
+
+    // 🔥 Melhor prática: usar role ao invés de CSS frágil
+    this.shippingMethods = page.getByRole('radio');
   }
 
   async validateCheckoutPageLoaded() {
@@ -41,7 +43,7 @@ export class CheckoutPage extends BasePage {
   async fillShippingInformation(data: CheckoutData) {
 
     await expect(
-        this.page.locator('.checkout-shipping-address')
+      this.page.locator('.checkout-shipping-address')
     ).toBeVisible({ timeout: 20000 });
 
     await this.firstNameInput.fill(data.firstName);
@@ -49,11 +51,11 @@ export class CheckoutPage extends BasePage {
 
     await this.stateSelect.selectOption({ label: data.state });
 
-    // 🔥 Espera o campo ser recriado e ficar editável
+    // Aguarda possível re-render do ZIP
     await expect(this.zipCodeInput).toBeEditable({ timeout: 15000 });
 
     await this.zipCodeInput.fill(data.zipCode);
-    await this.zipCodeInput.press('Tab');
+    await this.zipCodeInput.blur();
 
     await expect(this.cityInput).toBeEditable();
     await this.cityInput.fill(data.city);
@@ -61,15 +63,52 @@ export class CheckoutPage extends BasePage {
     await this.streetInput.fill(data.street);
     await this.phoneInput.fill(data.phone);
     await this.emailInput.fill(data.email);
-}   
+  }
 
   async selectShippingMethod() {
-    await expect(this.shippingMethodRadio.first()).toBeVisible({ timeout: 20000 });
-    await this.shippingMethodRadio.first().check();
+    await expect(this.shippingMethods.first()).toBeVisible({ timeout: 20000 });
+    await this.shippingMethods.first().check();
   }
 
   async continueToPayment() {
     await expect(this.nextButton).toBeEnabled({ timeout: 20000 });
     await this.nextButton.click();
+  }
+
+  async validatePlaceOrderDisabled() {
+    const placeOrderButton = this.page.locator('button.action.primary.checkout');
+
+    await expect(placeOrderButton).toBeVisible();
+    await expect(placeOrderButton).toBeDisabled();
+  }
+
+  async changeZipCode(newZip: string) {
+
+    const estimateRequest = this.page.waitForResponse(response =>
+      response.url().includes('/estimate-shipping-methods') &&
+      response.request().method() === 'POST'
+    );
+
+    await this.zipCodeInput.fill('');
+    await this.zipCodeInput.fill(newZip);
+    await this.zipCodeInput.blur();
+
+    await estimateRequest;
+
+    // 🔥 Espera DOM estabilizar após re-render
+    await expect(this.shippingMethods.first()).toBeVisible();
+  }
+
+  async validateShippingRecalculated() {
+    await expect(this.shippingMethods.first()).toBeVisible();
+    await expect(this.nextButton).toBeEnabled();
+  }
+
+  async validateShippingStillSelected() {
+    const firstMethod = this.shippingMethods.first();
+
+    await expect(firstMethod).toBeVisible();
+    await expect(firstMethod).toBeChecked();
+    await expect(this.nextButton).toBeEnabled();
   }
 }

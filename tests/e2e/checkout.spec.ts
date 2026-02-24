@@ -41,4 +41,43 @@ test.describe('Finalização de compra', () => {
         await checkout.continueToPayment();
     });
 
+    test('Deve recalcular shipping ao alterar ZIP após seleção', async ({ page }) => {
+
+        const home = new HomePage(page);
+        const search = new SearchPage(page);
+        const product = new ProductPage(page);
+        const cart = new CartPage(page);
+        const checkout = new CheckoutPage(page);
+
+        const fakeData = DataFactory.generateCheckoutData();
+
+        await home.navigate('/');
+
+        await Promise.all([
+            search.waitForSearchResponse(),
+            home.searchForProduct('shirt')
+        ]);
+
+        await search.clickLastProduct();
+        await product.selectFirstAvailableSize();
+        await product.selectFirstAvailableColor();
+        await product.addToCart();
+
+        await cart.openMiniCart();
+        await cart.proceedToCheckout();
+
+        await checkout.fillShippingInformation(fakeData);
+        await checkout.selectShippingMethod();
+
+        // Alterar ZIP depois de selecionar shipping
+        await checkout.changeZipCode('90210');
+
+        // Validar que houve revalidação
+        await checkout.validateShippingStillSelected();
+        });
+
+        
+                
 });
+
+
