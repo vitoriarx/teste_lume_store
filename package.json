@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "test": "playwright test",
+    "test:ci": "playwright test --reporter=html"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -11,9 +14,7 @@
   "devDependencies": {
     "@playwright/test": "^1.58.2",
     "@types/node": "^25.3.0",
-    "typescript": "^5.9.3",
-  "test": "playwright test",
-  "test:ci": "playwright test --reporter=html"
+    "typescript": "^5.9.3"
   },
   "dependencies": {
     "@faker-js/faker": "^10.3.0"
